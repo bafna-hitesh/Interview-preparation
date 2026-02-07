@@ -1,7 +1,32 @@
 # Frontend SDE-2 Interview Prep: Performance, Accessibility & Security
 
-## Quick Reference Guide for HackerRank SDE-2 Interview
+---
 
+## Table of Contents
+
+- [1. Performance Optimization](#1-performance-optimization-3-hours)
+  - [1.1 Core Web Vitals & Metrics](#11-core-web-vitals--metrics)
+  - [1.2 Code Splitting & Lazy Loading](#12-code-splitting--lazy-loading)
+  - [1.3 Image Optimization](#13-image-optimization)
+  - [1.4 Bundle Size Optimization](#14-bundle-size-optimization)
+  - [1.5 Rendering Performance](#15-rendering-performance)
+  - [1.6 Network Performance](#16-network-performance)
+  - [1.7 Performance Monitoring](#17-performance-monitoring)
+- [2. Accessibility & Internationalization](#2-accessibility--internationalization-2-hours)
+  - [2.1 ARIA and Semantic HTML](#21-aria-and-semantic-html)
+  - [2.2 Keyboard Navigation](#22-keyboard-navigation)
+  - [2.3 Screen Reader Support](#23-screen-reader-support)
+  - [2.4 Internationalization (i18n)](#24-internationalization-i18n)
+- [3. Front-End Security](#3-front-end-security-2-hours)
+  - [3.1 XSS (Cross-Site Scripting)](#31-xss-cross-site-scripting)
+  - [3.2 CSRF (Cross-Site Request Forgery)](#32-csrf-cross-site-request-forgery)
+  - [3.3 CORS (Cross-Origin Resource Sharing)](#33-cors-cross-origin-resource-sharing)
+  - [3.4 Authentication & Authorization](#34-authentication--authorization)
+  - [3.5 Input Validation & Sanitization](#35-input-validation--sanitization)
+- [Quick Reference Checklist](#quick-reference-checklist)
+- [Common Interview Questions](#common-interview-questions)
+
+---
 ---
 
 ## 1. PERFORMANCE OPTIMIZATION (3 hours)
