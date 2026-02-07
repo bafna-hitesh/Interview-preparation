@@ -4,6 +4,64 @@
 
 ---
 
+## Table of Contents
+
+- [Part 1: React Core Concepts](#part-1-react-core-concepts)
+  - [1.1 Component Lifecycle and Rendering Behavior](#11-component-lifecycle-and-rendering-behavior)
+  - [1.2 Virtual DOM and Reconciliation Algorithm](#12-virtual-dom-and-reconciliation-algorithm)
+  - [1.3 Controlled vs Uncontrolled Components](#13-controlled-vs-uncontrolled-components)
+  - [1.4 Error Boundaries and Error Handling](#14-error-boundaries-and-error-handling)
+  - [1.5 React 18+ Features](#15-react-18-features)
+  - [1.6 Context API Deep Dive](#16-context-api-deep-dive)
+  - [1.7 Refs and Forwarding Refs](#17-refs-and-forwarding-refs)
+- [Part 2: Hooks Deep Dive](#part-2-hooks-deep-dive)
+  - [2.1 useState - Batching, Functional Updates, Lazy Initialization](#21-usestate---batching-functional-updates-lazy-initialization)
+  - [2.2 useEffect - Cleanup, Dependencies, Common Pitfalls](#22-useeffect---cleanup-dependencies-common-pitfalls)
+  - [2.3 useCallback & useMemo - When to Use, When NOT to Use](#23-usecallback--usememo---when-to-use-when-not-to-use)
+  - [2.4 useRef - Beyond DOM Refs](#24-useref---beyond-dom-refs)
+  - [2.5 useReducer - Complex State Logic](#25-usereducer---complex-state-logic)
+  - [2.6 useContext - Performance Considerations](#26-usecontext---performance-considerations)
+  - [2.7 Custom Hooks - Patterns and Best Practices](#27-custom-hooks---patterns-and-best-practices)
+  - [2.8 React 18 Hooks (useId, useTransition, useDeferredValue)](#28-react-18-hooks-useid-usetransition-usedeferredvalue)
+- [Part 3: Performance Optimization](#part-3-performance-optimization)
+  - [3.1 React.memo, useMemo, useCallback - Proper Usage](#31-reactmemo-usememo-usecallback---proper-usage)
+  - [3.2 Code Splitting and Lazy Loading](#32-code-splitting-and-lazy-loading)
+  - [3.3 Virtualization for Large Lists](#33-virtualization-for-large-lists)
+  - [3.4 Avoiding Unnecessary Re-renders](#34-avoiding-unnecessary-re-renders)
+  - [3.5 React DevTools Profiler Usage](#35-react-devtools-profiler-usage)
+  - [3.6 Bundle Size Optimization](#36-bundle-size-optimization)
+  - [3.7 Web Vitals (LCP, FID, CLS)](#37-web-vitals-lcp-fid-cls)
+- [Part 4: Next.js Specific (App Router Focus)](#part-4-nextjs-specific-app-router-focus)
+  - [4.1 Server Components vs Client Components](#41-server-components-vs-client-components)
+  - [4.2 SSR, SSG, ISR - When to Use Which](#42-ssr-ssg-isr---when-to-use-which)
+  - [4.3 App Router vs Pages Router Differences](#43-app-router-vs-pages-router-differences)
+  - [4.4 Data Fetching Strategies (fetch, Server Actions)](#44-data-fetching-strategies-fetch-server-actions)
+  - [4.5 Middleware and Edge Functions](#45-middleware-and-edge-functions)
+  - [4.6 Image and Font Optimization](#46-image-and-font-optimization)
+  - [4.7 Caching and Revalidation](#47-caching-and-revalidation)
+  - [4.8 API Routes and Route Handlers](#48-api-routes-and-route-handlers)
+- [Part 5: Design Patterns & Architecture](#part-5-design-patterns--architecture)
+  - [5.1 Component Composition Patterns](#51-component-composition-patterns)
+  - [5.2 Render Props vs HOCs vs Hooks](#52-render-props-vs-hocs-vs-hooks)
+  - [5.3 State Management Approaches (Context, Zustand, Redux)](#53-state-management-approaches-context-zustand-redux)
+  - [5.4 Container/Presentational Pattern](#54-containerpresentational-pattern)
+  - [5.5 Compound Components](#55-compound-components)
+  - [5.6 Controlled vs Uncontrolled Patterns (Deep Dive)](#56-controlled-vs-uncontrolled-patterns-deep-dive)
+  - [5.7 Error Boundary Patterns](#57-error-boundary-patterns)
+- [Part 7: Common Interview Questions](#part-7-common-interview-questions)
+  - [7.1 Top 20 React Questions (3yr Experience Level)](#71-top-20-react-questions-3yr-experience-level)
+  - [7.2 Top 10 Next.js Questions](#72-top-10-nextjs-questions)
+  - [7.3 Behavioral Questions for Staff Engineer](#73-behavioral-questions-for-staff-engineer)
+  - [Quick Behavioral Tips](#quick-behavioral-tips)
+- [Quick Reference Card](#quick-reference-card)
+  - [React Performance Checklist](#react-performance-checklist)
+  - [Next.js App Router Quick Reference](#nextjs-app-router-quick-reference)
+  - [Server vs Client Components](#server-vs-client-components)
+
+---
+
+---
+
 ## Part 1: React Core Concepts
 
 ### 1.1 Component Lifecycle and Rendering Behavior
