@@ -3,6 +3,52 @@
 
 ---
 
+## Table of Contents
+
+### PART A: CORE JAVASCRIPT FUNDAMENTALS
+- [Section 1: Execution Context and Memory](#section-1-execution-context-and-memory)
+- [Section 2: Scope and Closures](#section-2-scope-and-closures)
+- [Section 3: `this` Keyword Deep Dive](#section-3-this-keyword-deep-dive)
+- [Section 4: Prototypes and Inheritance](#section-4-prototypes-and-inheritance)
+- [Section 5: Type System and Coercion](#section-5-type-system-and-coercion)
+- [Section 6: ES6+ Features (Complete)](#section-6-es6-features-complete)
+
+### PART B: ASYNCHRONOUS JAVASCRIPT (CRITICAL)
+- [Section 7: Event Loop Deep Dive](#section-7-event-loop-deep-dive)
+- [Section 8: Promises Mastery](#section-8-promises-mastery)
+- [Section 9: Async/Await Patterns](#section-9-asyncawait-patterns)
+
+### PART C: IMPLEMENTATIONS (INTERVIEW FAVORITES)
+- [Section 10: Must-Know Polyfills](#section-10-must-know-polyfills)
+- [Section 11: Utility Functions](#section-11-utility-functions)
+- [Section 11B: Practical Interview Utilities](#section-11b-practical-interview-utilities)
+- [Section 12: Data Structure Implementations](#section-12-data-structure-implementations)
+- [Section 13: Promise Implementations](#section-13-promise-implementations)
+
+### PART D: DOM AND BROWSER (FRONTEND SPECIFIC)
+- [Section 14: DOM Manipulation](#section-14-dom-manipulation)
+- [Section 15: Events Deep Dive](#section-15-events-deep-dive)
+- [Section 16: Browser APIs](#section-16-browser-apis)
+
+### PART E: OUTPUT PREDICTION QUESTIONS (25+ Questions)
+- [Section 17: Hoisting Questions](#section-17-hoisting-questions)
+- [Section 18: Closure Questions](#section-18-closure-questions)
+- [Section 19: `this` Keyword Questions](#section-19-this-keyword-questions)
+- [Section 20: Event Loop Questions](#section-20-event-loop-questions)
+- [Section 21: Prototype Questions](#section-21-prototype-questions)
+- [Section 22: Tricky Edge Cases](#section-22-tricky-edge-cases)
+- [Section 23: Bonus Quick-Fire Questions](#section-23-bonus-quick-fire-questions)
+
+### PART F: CODING PATTERNS FOR LIVE INTERVIEWS
+- [Section 24: Problem-Solving Approach](#section-24-problem-solving-approach)
+- [Section 25: Common Interview Patterns](#section-25-common-interview-patterns)
+- [Section 26: Quick Reference - Complexity Cheat Sheet](#section-26-quick-reference---complexity-cheat-sheet)
+- [Section 27: Final Interview Tips](#section-27-final-interview-tips)
+
+---
+
+---
+
 # PART A: CORE JAVASCRIPT FUNDAMENTALS
 
 ---
