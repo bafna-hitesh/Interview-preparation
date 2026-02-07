@@ -431,7 +431,7 @@ console.log('4');
 1. **Event Loop** allows non-blocking I/O in single-threaded JavaScript
 2. **6 phases**: timers → pending → idle → **poll** → check → close
 3. **Microtasks** (nextTick, Promises) run between EVERY phase
-4. **process.nextTick** > **Promises** > **setTimeout** > **setImmediate**
+4. **process.nextTick** > **Promises** > **setImmediate** > **setTimeout**
 5. Inside I/O: `setImmediate` always before `setTimeout`
 6. **Never block** the event loop with sync operations
 7. Use **Worker Threads** for CPU-intensive tasks
