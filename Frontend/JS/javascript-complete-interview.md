@@ -3117,35 +3117,7 @@ async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
 // Usage:
 const data = await retryWithBackoff(() => fetch('/api/unstable'));
 
-// Pattern 2: Concurrent limit (like p-limit)
-async function asyncPool(limit, items, fn) {
-    const results = [];
-    const executing = new Set();
-    
-    for (const item of items) {
-        const promise = Promise.resolve().then(() => fn(item));
-        results.push(promise);
-        executing.add(promise);
-        
-        const cleanup = () => executing.delete(promise);
-        promise.then(cleanup, cleanup);
-        
-        if (executing.size >= limit) {
-            await Promise.race(executing);
-        }
-    }
-    
-    return Promise.all(results);
-}
-
-// Usage: Process 100 items, max 5 concurrent
-const items = Array.from({ length: 100 }, (_, i) => i);
-await asyncPool(5, items, async (item) => {
-    const result = await processItem(item);
-    return result;
-});
-
-// Pattern 3: Timeout wrapper
+// Pattern 2: Timeout wrapper
 function withTimeout(promise, ms, errorMessage = 'Timeout') {
     const timeout = new Promise((_, reject) => {
         setTimeout(() => reject(new Error(errorMessage)), ms);
@@ -3162,28 +3134,7 @@ try {
     }
 }
 
-// Pattern 4: Debounced async function
-function debounceAsync(fn, delay) {
-    let timeoutId;
-    let pendingPromise = null;
-    
-    return function(...args) {
-        return new Promise((resolve, reject) => {
-            clearTimeout(timeoutId);
-            
-            timeoutId = setTimeout(async () => {
-                try {
-                    const result = await fn.apply(this, args);
-                    resolve(result);
-                } catch (error) {
-                    reject(error);
-                }
-            }, delay);
-        });
-    };
-}
-
-// Pattern 5: Sequential promise execution
+// Pattern 4: Sequential promise execution
 async function sequential(promiseFns) {
     const results = [];
     for (const fn of promiseFns) {
@@ -3216,32 +3167,12 @@ This section contains **must-know implementations** frequently asked in intervie
 ```javascript
 // bind() creates a new function with 'this' bound to provided value
 
-// Basic Implementation
 Function.prototype.myBind = function(context, ...boundArgs) {
     const fn = this; // The function being bound
     
     return function(...args) {
         return fn.apply(context, [...boundArgs, ...args]);
     };
-};
-
-// Complete Implementation (handles 'new' keyword)
-Function.prototype.myBindComplete = function(context, ...boundArgs) {
-    const fn = this;
-    
-    const boundFunction = function(...args) {
-        // If called with 'new', 'this' should be the new instance
-        const isNew = this instanceof boundFunction;
-        return fn.apply(
-            isNew ? this : context,
-            [...boundArgs, ...args]
-        );
-    };
-    
-    // Maintain prototype chain for 'new'
-    boundFunction.prototype = Object.create(fn.prototype);
-    
-    return boundFunction;
 };
 
 // Test:
@@ -3436,27 +3367,6 @@ Array.prototype.myFlat = function(depth = 1) {
     return result;
 };
 
-// Iterative implementation using stack
-Array.prototype.myFlatIterative = function(depth = 1) {
-    const stack = this.map(item => [item, depth]);
-    const result = [];
-    
-    while (stack.length > 0) {
-        const [item, d] = stack.pop();
-        
-        if (Array.isArray(item) && d > 0) {
-            // Push in reverse order to maintain original order
-            for (let i = item.length - 1; i >= 0; i--) {
-                stack.push([item[i], d - 1]);
-            }
-        } else {
-            result.push(item);
-        }
-    }
-    
-    return result.reverse();
-};
-
 // Test:
 const nested = [1, [2, [3, [4]]]];
 console.log(nested.myFlat());      // [1, 2, [3, [4]]]
@@ -3642,59 +3552,12 @@ console.log(myInstanceOf([], Array));   // true
 ### 11.1 Debounce
 
 ```javascript
-// Basic debounce
-function debounce(fn, delay) {
+function debounce(func, delay) {
     let timeoutId;
-    
     return function(...args) {
         clearTimeout(timeoutId);
-        
-        timeoutId = setTimeout(() => {
-            fn.apply(this, args);
-        }, delay);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
     };
-}
-
-// Advanced debounce with immediate, cancel, and flush
-function debounceAdvanced(fn, delay, { immediate = false } = {}) {
-    let timeoutId;
-    let lastArgs;
-    let lastThis;
-    
-    function debounced(...args) {
-        lastArgs = args;
-        lastThis = this;
-        
-        const callNow = immediate && !timeoutId;
-        
-        clearTimeout(timeoutId);
-        
-        timeoutId = setTimeout(() => {
-            timeoutId = null;
-            if (!immediate) {
-                fn.apply(lastThis, lastArgs);
-            }
-        }, delay);
-        
-        if (callNow) {
-            fn.apply(lastThis, lastArgs);
-        }
-    }
-    
-    debounced.cancel = function() {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-    };
-    
-    debounced.flush = function() {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
-            timeoutId = null;
-            fn.apply(lastThis, lastArgs);
-        }
-    };
-    
-    return debounced;
 }
 
 // Test:
@@ -3714,67 +3577,25 @@ debouncedSearch('hello');
 ### 11.2 Throttle
 
 ```javascript
-// Basic throttle (leading edge)
-function throttle(fn, limit) {
-    let inThrottle = false;
+function throttle(func, delay) {
+    let lastCall = 0;
+    let timeoutId = null;
     
     return function(...args) {
-        if (!inThrottle) {
-            fn.apply(this, args);
-            inThrottle = true;
-            setTimeout(() => {
-                inThrottle = false;
-            }, limit);
-        }
-    };
-}
-
-// Advanced throttle with leading/trailing options
-function throttleAdvanced(fn, limit, { leading = true, trailing = true } = {}) {
-    let lastArgs;
-    let lastThis;
-    let timeoutId;
-    let lastCallTime = 0;
-    
-    function invoke() {
-        fn.apply(lastThis, lastArgs);
-        lastCallTime = Date.now();
-    }
-    
-    function throttled(...args) {
-        lastArgs = args;
-        lastThis = this;
-        
         const now = Date.now();
-        const remaining = limit - (now - lastCallTime);
+        const timeSinceLastCall = now - lastCall;
         
-        if (remaining <= 0 || remaining > limit) {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-                timeoutId = null;
-            }
-            if (leading || lastCallTime !== 0) {
-                invoke();
-            } else {
-                lastCallTime = now;
-            }
-        } else if (!timeoutId && trailing) {
+        if (timeSinceLastCall >= delay) {
+            lastCall = now;
+            func.apply(this, args);
+        } else {
+            clearTimeout(timeoutId);
             timeoutId = setTimeout(() => {
-                timeoutId = null;
-                if (trailing) {
-                    invoke();
-                }
-            }, remaining);
+                lastCall = Date.now();
+                func.apply(this, args);
+            }, delay - timeSinceLastCall);
         }
-    }
-    
-    throttled.cancel = function() {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-        lastCallTime = 0;
     };
-    
-    return throttled;
 }
 
 // Test:
@@ -4015,54 +3836,27 @@ console.log(memoizedFn(10)); // Computing... 20
 ### 11.6 Curry
 
 ```javascript
-// Basic curry (fixed arity)
+// Simple curry for known arity
 function curry(fn) {
     return function curried(...args) {
         if (args.length >= fn.length) {
             return fn.apply(this, args);
+        } else {
+            return function(...moreArgs) {
+                return curried.apply(this, [...args, ...moreArgs]);
+            };
         }
-        return function(...nextArgs) {
-            return curried.apply(this, [...args, ...nextArgs]);
-        };
     };
 }
 
-// Infinite curry (no fixed arity)
+// Infinite curry (for unknown arity)
 function infiniteCurry(fn) {
     return function curried(...args) {
-        // When called without args or with a special marker, execute
-        if (args.length === 0) {
-            return fn.apply(this, []);
-        }
-        
-        return function(...nextArgs) {
-            if (nextArgs.length === 0) {
+        return function(...moreArgs) {
+            if (moreArgs.length === 0) {
                 return fn.apply(this, args);
             }
-            return curried.apply(this, [...args, ...nextArgs]);
-        };
-    };
-}
-
-// Curry with placeholder support
-const _ = Symbol('placeholder');
-
-function curryWithPlaceholder(fn) {
-    return function curried(...args) {
-        // Check if we have enough non-placeholder args
-        const complete = args.length >= fn.length &&
-            !args.slice(0, fn.length).includes(_);
-        
-        if (complete) {
-            return fn.apply(this, args);
-        }
-        
-        return function(...nextArgs) {
-            // Replace placeholders with new args
-            const mergedArgs = args.map(arg => 
-                arg === _ && nextArgs.length ? nextArgs.shift() : arg
-            );
-            return curried.apply(this, [...mergedArgs, ...nextArgs]);
+            return curried.apply(this, [...args, ...moreArgs]);
         };
     };
 }
@@ -4076,10 +3870,9 @@ console.log(curriedAdd(1, 2)(3)); // 6
 console.log(curriedAdd(1)(2, 3)); // 6
 console.log(curriedAdd(1, 2, 3)); // 6
 
-// With placeholder:
-const curriedWithPlaceholder = curryWithPlaceholder(add);
-console.log(curriedWithPlaceholder(_, 2, 3)(1)); // 6
-console.log(curriedWithPlaceholder(_, _, 3)(1)(2)); // 6
+// Infinite curry test:
+const sum = infiniteCurry((...nums) => nums.reduce((a, b) => a + b, 0));
+console.log(sum(1)(2)(3)(4)()); // 10
 ```
 
 ### 11.7 Compose and Pipe
@@ -4162,55 +3955,28 @@ console.log(initialize()); // { initialized: true } (no log, cached result)
 ### 11.9 Retry with Exponential Backoff
 
 ```javascript
-async function retry(fn, {
-    maxAttempts = 3,
-    baseDelay = 1000,
-    maxDelay = 30000,
-    factor = 2,
-    onRetry = () => {}
-} = {}) {
-    let lastError;
-    
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+async function retry(fn, maxRetries = 3, baseDelay = 1000) {
+    for (let i = 0; i < maxRetries; i++) {
         try {
             return await fn();
         } catch (error) {
-            lastError = error;
-            
-            if (attempt === maxAttempts) {
-                break;
-            }
-            
-            const delay = Math.min(
-                baseDelay * Math.pow(factor, attempt - 1),
-                maxDelay
-            );
-            
-            onRetry({ attempt, delay, error });
-            
+            if (i === maxRetries - 1) throw error;
+            const delay = baseDelay * Math.pow(2, i);
+            console.log(`Retry ${i + 1} after ${delay}ms`);
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
-    
-    throw lastError;
 }
 
 // Test:
 let attempts = 0;
 const unreliableFn = async () => {
     attempts++;
-    if (attempts < 3) {
-        throw new Error('Failed');
-    }
+    if (attempts < 3) throw new Error('Failed');
     return 'Success!';
 };
 
-retry(unreliableFn, {
-    maxAttempts: 5,
-    onRetry: ({ attempt, delay }) => {
-        console.log(`Attempt ${attempt} failed, retrying in ${delay}ms`);
-    }
-}).then(console.log); // Success! (after 2 retries)
+retry(unreliableFn, 5, 1000).then(console.log); // Success! (after 2 retries)
 ```
 
 ### 11.10 Sleep / Delay
@@ -4223,24 +3989,6 @@ function sleep(ms) {
 // With value
 function delay(ms, value) {
     return new Promise(resolve => setTimeout(() => resolve(value), ms));
-}
-
-// Cancelable sleep
-function cancelableSleep(ms) {
-    let timeoutId;
-    let rejectFn;
-    
-    const promise = new Promise((resolve, reject) => {
-        rejectFn = reject;
-        timeoutId = setTimeout(resolve, ms);
-    });
-    
-    promise.cancel = () => {
-        clearTimeout(timeoutId);
-        rejectFn(new Error('Cancelled'));
-    };
-    
-    return promise;
 }
 
 // Test:
@@ -4402,122 +4150,499 @@ console.log(obj); // { a: {...}, x: { y: { z: 3 } } }
 
 ---
 
+## Section 11B: Practical Interview Utilities
+
+These are commonly asked practical utilities that complement the core functions above.
+
+### 11B.1 Parse Query String
+
+```javascript
+// Parse URL query string to object
+function parseQueryString(queryString) {
+    const query = queryString.startsWith('?') ? queryString.slice(1) : queryString;
+    const result = {};
+    
+    if (!query) return result;
+    
+    query.split('&').forEach(pair => {
+        const [key, value] = pair.split('=').map(decodeURIComponent);
+        
+        if (result[key]) {
+            // Handle multiple values with same key
+            if (Array.isArray(result[key])) {
+                result[key].push(value);
+            } else {
+                result[key] = [result[key], value];
+            }
+        } else {
+            result[key] = value;
+        }
+    });
+    
+    return result;
+}
+
+// Test:
+const qs = '?name=John&age=30&hobbies=reading&hobbies=gaming';
+console.log(parseQueryString(qs));
+// { name: 'John', age: '30', hobbies: ['reading', 'gaming'] }
+
+// Reverse: Object to query string
+function toQueryString(obj) {
+    return Object.entries(obj)
+        .flatMap(([key, value]) => {
+            if (Array.isArray(value)) {
+                return value.map(v => `${encodeURIComponent(key)}=${encodeURIComponent(v)}`);
+            }
+            return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+        })
+        .join('&');
+}
+
+console.log(toQueryString({ name: 'John', age: 30 })); // 'name=John&age=30'
+```
+
+### 11B.2 Format Phone Number
+
+```javascript
+function formatPhoneNumber(phoneNumber) {
+    // Remove all non-digit characters
+    const digits = phoneNumber.replace(/\D/g, '');
+    
+    if (digits.length !== 10) {
+        return 'Invalid phone number';
+    }
+    
+    // Format: (XXX) XXX-XXXX
+    return digits.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+}
+
+// Test:
+console.log(formatPhoneNumber('1234567890'));    // (123) 456-7890
+console.log(formatPhoneNumber('123-456-7890')); // (123) 456-7890
+console.log(formatPhoneNumber('(123) 456-7890')); // (123) 456-7890
+```
+
+### 11B.3 Extract Hashtags
+
+```javascript
+function extractHashtags(text) {
+    const hashtagRegex = /#([a-zA-Z0-9_]+)/g;
+    const matches = [...text.matchAll(hashtagRegex)];
+    return matches.map(match => match[1]);
+}
+
+// Return unique hashtags
+function extractUniqueHashtags(text) {
+    const hashtagRegex = /#([a-zA-Z0-9_]+)/g;
+    const matches = [...text.matchAll(hashtagRegex)];
+    return [...new Set(matches.map(match => match[1]))];
+}
+
+// Test:
+const post = "Loving #JavaScript! #ES2024 #WebDev is amazing. #react #JavaScript";
+console.log(extractHashtags(post)); // ['JavaScript', 'ES2024', 'WebDev', 'react', 'JavaScript']
+console.log(extractUniqueHashtags(post)); // ['JavaScript', 'ES2024', 'WebDev', 'react']
+```
+
+### 11B.4 Email Validation
+
+```javascript
+function isValidEmail(email) {
+    // Basic email regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// More comprehensive validation
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(email)) {
+        return { valid: false, reason: 'Invalid format' };
+    }
+    
+    if (email.length > 254) {
+        return { valid: false, reason: 'Email too long' };
+    }
+    
+    const [local, domain] = email.split('@');
+    
+    if (local.length > 64) {
+        return { valid: false, reason: 'Local part too long' };
+    }
+    
+    return { valid: true };
+}
+
+// Test:
+console.log(isValidEmail('test@example.com')); // true
+console.log(isValidEmail('invalid.email@'));   // false
+console.log(validateEmail('user@example.com')); // { valid: true }
+```
+
+### 11B.5 Credit Card Validation (Luhn Algorithm)
+
+```javascript
+function validateCreditCard(cardNumber) {
+    // Remove spaces and dashes
+    const cleaned = cardNumber.replace(/[\s-]/g, '');
+    
+    // Check if only digits
+    if (!/^\d+$/.test(cleaned)) {
+        return { valid: false, reason: 'Invalid characters' };
+    }
+    
+    // Luhn algorithm
+    let sum = 0;
+    let isEven = false;
+    
+    for (let i = cleaned.length - 1; i >= 0; i--) {
+        let digit = parseInt(cleaned[i]);
+        
+        if (isEven) {
+            digit *= 2;
+            if (digit > 9) {
+                digit -= 9;
+            }
+        }
+        
+        sum += digit;
+        isEven = !isEven;
+    }
+    
+    const valid = sum % 10 === 0;
+    
+    if (!valid) {
+        return { valid: false, reason: 'Failed Luhn check' };
+    }
+    
+    // Identify card type
+    let type = 'Unknown';
+    if (/^4/.test(cleaned)) type = 'Visa';
+    else if (/^5[1-5]/.test(cleaned)) type = 'Mastercard';
+    else if (/^3[47]/.test(cleaned)) type = 'American Express';
+    
+    return { valid: true, type, last4: cleaned.slice(-4) };
+}
+
+// Test:
+console.log(validateCreditCard('4532-1488-0343-6467')); // Valid Visa
+console.log(validateCreditCard('1234-5678-9012-3456')); // Invalid
+```
+
+### 11B.6 Group By Property
+
+```javascript
+function groupBy(array, key) {
+    return array.reduce((acc, item) => {
+        const groupKey = typeof key === 'function' ? key(item) : item[key];
+        
+        if (!acc[groupKey]) {
+            acc[groupKey] = [];
+        }
+        acc[groupKey].push(item);
+        
+        return acc;
+    }, {});
+}
+
+// Test:
+const users = [
+    { id: 1, name: 'Alice', department: 'Engineering' },
+    { id: 2, name: 'Bob', department: 'Marketing' },
+    { id: 3, name: 'Charlie', department: 'Engineering' },
+    { id: 4, name: 'Diana', department: 'HR' }
+];
+
+console.log(groupBy(users, 'department'));
+// {
+//   Engineering: [{ id: 1, ... }, { id: 3, ... }],
+//   Marketing: [{ id: 2, ... }],
+//   HR: [{ id: 4, ... }]
+// }
+
+// With function key:
+const numbers = [1, 2, 3, 4, 5, 6];
+console.log(groupBy(numbers, n => n % 2 === 0 ? 'even' : 'odd'));
+// { odd: [1, 3, 5], even: [2, 4, 6] }
+```
+
+### 11B.7 Array Intersection
+
+```javascript
+function findIntersection(...arrays) {
+    if (arrays.length === 0) return [];
+    
+    const result = new Set(arrays[0]);
+    
+    for (let i = 1; i < arrays.length; i++) {
+        const currentSet = new Set(arrays[i]);
+        for (const item of result) {
+            if (!currentSet.has(item)) {
+                result.delete(item);
+            }
+        }
+    }
+    
+    return Array.from(result);
+}
+
+// Test:
+const arr1 = [1, 2, 3, 4, 5];
+const arr2 = [2, 3, 5, 6, 7];
+const arr3 = [3, 5, 8, 9];
+
+console.log(findIntersection(arr1, arr2));       // [2, 3, 5]
+console.log(findIntersection(arr1, arr2, arr3)); // [3, 5]
+```
+
+### 11B.8 Merge and Deduplicate
+
+```javascript
+function mergeAndDeduplicate(arr1, arr2, keyFn = (item) => item.id) {
+    const merged = [...arr1, ...arr2];
+    
+    // Use Map to deduplicate by key
+    const uniqueMap = new Map();
+    merged.forEach(item => {
+        const key = typeof keyFn === 'function' ? keyFn(item) : item[keyFn];
+        uniqueMap.set(key, item);
+    });
+    
+    return Array.from(uniqueMap.values());
+}
+
+// Test:
+const products1 = [
+    { id: 1, name: 'Laptop', price: 999 },
+    { id: 2, name: 'Mouse', price: 25 }
+];
+const products2 = [
+    { id: 2, name: 'Mouse', price: 25 }, // duplicate
+    { id: 3, name: 'Keyboard', price: 75 }
+];
+
+console.log(mergeAndDeduplicate(products1, products2));
+// [{ id: 1, ... }, { id: 2, ... }, { id: 3, ... }]
+
+// Sort by price after merge:
+const merged = mergeAndDeduplicate(products1, products2);
+const sorted = merged.sort((a, b) => b.price - a.price);
+console.log(sorted); // Sorted by price descending
+```
+
+### 11B.9 Flatten Nested Data with Transform
+
+```javascript
+function flattenNested(categories) {
+    return categories.flatMap(category => 
+        category.products.map(product => ({
+            ...product,
+            category: category.name
+        }))
+    );
+}
+
+// Test:
+const categories = [
+    {
+        name: 'Electronics',
+        products: [
+            { id: 1, name: 'Phone', price: 699 },
+            { id: 2, name: 'Tablet', price: 499 }
+        ]
+    },
+    {
+        name: 'Books',
+        products: [
+            { id: 3, name: 'JavaScript Guide', price: 39 }
+        ]
+    }
+];
+
+console.log(flattenNested(categories));
+// [
+//   { id: 1, name: 'Phone', price: 699, category: 'Electronics' },
+//   { id: 2, name: 'Tablet', price: 499, category: 'Electronics' },
+//   { id: 3, name: 'JavaScript Guide', price: 39, category: 'Books' }
+// ]
+```
+
+### 11B.10 Rate Limiter
+
+```javascript
+class RateLimiter {
+    constructor(maxRequests, perMilliseconds) {
+        this.maxRequests = maxRequests;
+        this.perMilliseconds = perMilliseconds;
+        this.queue = [];
+        this.timestamps = [];
+    }
+    
+    async execute(fn) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ fn, resolve, reject });
+            this.processQueue();
+        });
+    }
+    
+    processQueue() {
+        if (this.queue.length === 0) return;
+        
+        const now = Date.now();
+        
+        // Remove old timestamps
+        this.timestamps = this.timestamps.filter(
+            time => now - time < this.perMilliseconds
+        );
+        
+        // Can we make a request?
+        if (this.timestamps.length < this.maxRequests) {
+            const { fn, resolve, reject } = this.queue.shift();
+            this.timestamps.push(now);
+            
+            fn()
+                .then(resolve)
+                .catch(reject)
+                .finally(() => {
+                    setTimeout(() => this.processQueue(), 0);
+                });
+        } else {
+            // Wait and try again
+            const oldestTimestamp = this.timestamps[0];
+            const waitTime = this.perMilliseconds - (now - oldestTimestamp);
+            setTimeout(() => this.processQueue(), waitTime);
+        }
+    }
+}
+
+// Test:
+const limiter = new RateLimiter(3, 1000); // 3 requests per second
+
+async function fetchWithLimit(id) {
+    return limiter.execute(async () => {
+        console.log(`Fetching ${id} at ${Date.now()}`);
+        return { id, data: `Result ${id}` };
+    });
+}
+
+// Make 6 requests - will be rate limited to 3 per second
+async function testRateLimiter() {
+    const promises = [];
+    for (let i = 1; i <= 6; i++) {
+        promises.push(fetchWithLimit(i));
+    }
+    const results = await Promise.all(promises);
+    console.log('All done:', results);
+}
+```
+
+### 11B.11 Async Pipeline
+
+```javascript
+// Pipeline: Execute async functions in sequence
+async function pipeline(...fns) {
+    return async function(initialValue) {
+        let result = initialValue;
+        for (const fn of fns) {
+            result = await fn(result);
+        }
+        return result;
+    };
+}
+
+// Test:
+async function fetchData() {
+    await new Promise(r => setTimeout(r, 100));
+    return [1, 2, 3, 4, 5];
+}
+
+async function double(numbers) {
+    await new Promise(r => setTimeout(r, 100));
+    return numbers.map(n => n * 2);
+}
+
+async function filterEven(numbers) {
+    await new Promise(r => setTimeout(r, 100));
+    return numbers.filter(n => n % 2 === 0);
+}
+
+async function sum(numbers) {
+    await new Promise(r => setTimeout(r, 100));
+    return numbers.reduce((a, b) => a + b, 0);
+}
+
+// Usage:
+const process = await pipeline(fetchData, double, filterEven, sum);
+process().then(result => console.log('Result:', result)); // Result: 12
+
+// With error handling
+async function pipelineWithErrorHandling(...fns) {
+    return async function(initialValue) {
+        let result = initialValue;
+        for (let i = 0; i < fns.length; i++) {
+            try {
+                result = await fns[i](result);
+            } catch (error) {
+                throw new Error(`Pipeline failed at step ${i + 1}: ${error.message}`);
+            }
+        }
+        return result;
+    };
+}
+```
+
+---
+
 ## Section 12: Data Structure Implementations
 
 ### 12.1 LRU Cache (MUST KNOW)
 
 ```javascript
-// Using Map for O(1) operations
 class LRUCache {
     constructor(capacity) {
         this.capacity = capacity;
-        this.cache = new Map(); // Map maintains insertion order
+        this.cache = new Map();
     }
     
     get(key) {
         if (!this.cache.has(key)) {
             return -1;
         }
-        
         // Move to end (most recently used)
         const value = this.cache.get(key);
         this.cache.delete(key);
         this.cache.set(key, value);
-        
         return value;
     }
     
     put(key, value) {
-        // If key exists, delete it (to update position)
         if (this.cache.has(key)) {
             this.cache.delete(key);
         }
-        // If at capacity, remove oldest (first item)
-        else if (this.cache.size >= this.capacity) {
-            const oldestKey = this.cache.keys().next().value;
-            this.cache.delete(oldestKey);
-        }
-        
         this.cache.set(key, value);
-    }
-}
-
-// Using Doubly Linked List + HashMap (Classic implementation)
-class LRUCacheClassic {
-    constructor(capacity) {
-        this.capacity = capacity;
-        this.map = new Map();
-        
-        // Dummy head and tail
-        this.head = { key: null, value: null };
-        this.tail = { key: null, value: null };
-        this.head.next = this.tail;
-        this.tail.prev = this.head;
-    }
-    
-    // Add node right after head (most recently used)
-    _addToFront(node) {
-        node.prev = this.head;
-        node.next = this.head.next;
-        this.head.next.prev = node;
-        this.head.next = node;
-    }
-    
-    // Remove node from its current position
-    _removeNode(node) {
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
-    }
-    
-    // Move node to front (mark as recently used)
-    _moveToFront(node) {
-        this._removeNode(node);
-        this._addToFront(node);
-    }
-    
-    get(key) {
-        if (!this.map.has(key)) {
-            return -1;
+        if (this.cache.size > this.capacity) {
+            const firstKey = this.cache.keys().next().value;
+            this.cache.delete(firstKey);
         }
-        
-        const node = this.map.get(key);
-        this._moveToFront(node);
-        return node.value;
     }
     
-    put(key, value) {
-        if (this.map.has(key)) {
-            // Update existing
-            const node = this.map.get(key);
-            node.value = value;
-            this._moveToFront(node);
-        } else {
-            // Add new
-            const newNode = { key, value };
-            this.map.set(key, newNode);
-            this._addToFront(newNode);
-            
-            // Evict if over capacity
-            if (this.map.size > this.capacity) {
-                const lru = this.tail.prev;
-                this._removeNode(lru);
-                this.map.delete(lru.key);
-            }
-        }
+    // Helper method to see current state
+    toString() {
+        return Array.from(this.cache.entries());
     }
 }
 
 // Test:
-const cache = new LRUCache(2);
-cache.put(1, 1);
-cache.put(2, 2);
-console.log(cache.get(1));    // 1
-cache.put(3, 3);              // Evicts key 2
-console.log(cache.get(2));    // -1 (not found)
-cache.put(4, 4);              // Evicts key 1
-console.log(cache.get(1));    // -1 (not found)
-console.log(cache.get(3));    // 3
-console.log(cache.get(4));    // 4
+const cache = new LRUCache(3);
+cache.put(1, 'one');
+cache.put(2, 'two');
+cache.put(3, 'three');
+console.log(cache.get(1)); // 'one', moves 1 to end
+cache.put(4, 'four');      // removes key 2
+console.log(cache.get(2)); // -1 (not found)
+console.log(cache.toString()); // [[3, 'three'], [1, 'one'], [4, 'four']]
 ```
 
 ### 12.2 EventEmitter / PubSub (MUST KNOW)
@@ -4525,182 +4650,77 @@ console.log(cache.get(4));    // 4
 ```javascript
 class EventEmitter {
     constructor() {
-        this.events = new Map();
+        this.events = {};
     }
     
-    // Subscribe to event
-    on(event, listener) {
-        if (!this.events.has(event)) {
-            this.events.set(event, []);
+    // Subscribe to an event
+    on(event, callback) {
+        if (!this.events[event]) {
+            this.events[event] = [];
         }
-        this.events.get(event).push(listener);
-        return this; // For chaining
+        this.events[event].push(callback);
+        
+        // Return unsubscribe function
+        return () => this.off(event, callback);
     }
     
     // Subscribe once
-    once(event, listener) {
+    once(event, callback) {
         const wrapper = (...args) => {
-            listener.apply(this, args);
+            callback(...args);
             this.off(event, wrapper);
         };
-        wrapper.original = listener; // For removal
-        return this.on(event, wrapper);
+        this.on(event, wrapper);
     }
     
-    // Unsubscribe from event
-    off(event, listener) {
-        if (!this.events.has(event)) return this;
-        
-        const listeners = this.events.get(event);
-        const index = listeners.findIndex(
-            l => l === listener || l.original === listener
-        );
-        
-        if (index !== -1) {
-            listeners.splice(index, 1);
-        }
-        
-        if (listeners.length === 0) {
-            this.events.delete(event);
-        }
-        
-        return this;
+    // Unsubscribe
+    off(event, callback) {
+        if (!this.events[event]) return;
+        this.events[event] = this.events[event].filter(cb => cb !== callback);
     }
     
     // Emit event
     emit(event, ...args) {
-        if (!this.events.has(event)) return false;
-        
-        const listeners = this.events.get(event).slice(); // Copy to avoid mutation issues
-        listeners.forEach(listener => {
-            listener.apply(this, args);
+        if (!this.events[event]) return;
+        this.events[event].forEach(callback => {
+            callback(...args);
         });
-        
-        return true;
-    }
-    
-    // Get listener count
-    listenerCount(event) {
-        return this.events.has(event) ? this.events.get(event).length : 0;
-    }
-    
-    // Get all listeners for event
-    listeners(event) {
-        return this.events.has(event) ? [...this.events.get(event)] : [];
     }
     
     // Remove all listeners
     removeAllListeners(event) {
         if (event) {
-            this.events.delete(event);
+            delete this.events[event];
         } else {
-            this.events.clear();
+            this.events = {};
         }
-        return this;
     }
 }
 
 // Test:
 const emitter = new EventEmitter();
 
-const handler = (data) => console.log('Received:', data);
+const unsubscribe = emitter.on('message', (data) => {
+    console.log('Received:', data);
+});
 
-emitter.on('message', handler);
-emitter.on('message', (data) => console.log('Also received:', data));
+emitter.on('message', (data) => {
+    console.log('Also received:', data);
+});
 
-emitter.emit('message', 'Hello'); 
-// Received: Hello
-// Also received: Hello
+emitter.once('init', () => {
+    console.log('Initialized (only once)');
+});
 
-emitter.once('connect', () => console.log('Connected!'));
-emitter.emit('connect'); // Connected!
-emitter.emit('connect'); // (nothing - listener removed)
+emitter.emit('message', 'Hello'); // Both listeners fire
+emitter.emit('init'); // Fires once
+emitter.emit('init'); // Doesn't fire
 
-emitter.off('message', handler);
-emitter.emit('message', 'Hi'); // Also received: Hi (only second handler)
+unsubscribe(); // Remove first listener
+emitter.emit('message', 'World'); // Only second listener fires
 ```
 
-### 12.3 Observable (Basic Reactive Pattern)
-
-```javascript
-class Observable {
-    constructor(subscribe) {
-        this._subscribe = subscribe;
-    }
-    
-    subscribe(observer) {
-        // Normalize observer
-        const normalizedObserver = typeof observer === 'function'
-            ? { next: observer, error: () => {}, complete: () => {} }
-            : { 
-                next: observer.next || (() => {}),
-                error: observer.error || (() => {}),
-                complete: observer.complete || (() => {})
-            };
-        
-        return this._subscribe(normalizedObserver);
-    }
-    
-    // Create Observable from array
-    static from(array) {
-        return new Observable(observer => {
-            array.forEach(item => observer.next(item));
-            observer.complete();
-            return { unsubscribe: () => {} };
-        });
-    }
-    
-    // Create Observable from event
-    static fromEvent(element, eventName) {
-        return new Observable(observer => {
-            const handler = (e) => observer.next(e);
-            element.addEventListener(eventName, handler);
-            return {
-                unsubscribe: () => element.removeEventListener(eventName, handler)
-            };
-        });
-    }
-    
-    // Map operator
-    map(fn) {
-        return new Observable(observer => {
-            return this.subscribe({
-                next: value => observer.next(fn(value)),
-                error: err => observer.error(err),
-                complete: () => observer.complete()
-            });
-        });
-    }
-    
-    // Filter operator
-    filter(predicate) {
-        return new Observable(observer => {
-            return this.subscribe({
-                next: value => {
-                    if (predicate(value)) {
-                        observer.next(value);
-                    }
-                },
-                error: err => observer.error(err),
-                complete: () => observer.complete()
-            });
-        });
-    }
-}
-
-// Test:
-const numbers$ = Observable.from([1, 2, 3, 4, 5]);
-
-numbers$
-    .filter(x => x % 2 === 0)
-    .map(x => x * 10)
-    .subscribe({
-        next: value => console.log(value), // 20, 40
-        complete: () => console.log('Done')
-    });
-```
-
-### 12.4 Stack with Min/Max in O(1)
+### 12.3 Stack with Min/Max in O(1)
 
 ```javascript
 class MinStack {
