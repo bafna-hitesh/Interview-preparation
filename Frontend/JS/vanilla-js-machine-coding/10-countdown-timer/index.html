@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Timer - Interview Solution</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    
+    h1 { text-align: center; font-weight: 300; }
+    
+    .timer-container {
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .display-time {
+      font-size: 8rem;
+      font-weight: 200;
+      font-variant-numeric: tabular-nums;
+      margin: 40px 0 10px;
+      transition: color 0.3s;
+    }
+    
+    .display-time.warning {
+      color: #ffc107;
+    }
+    
+    .display-time.danger {
+      color: #ff5252;
+      animation: pulse 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .display-end-time {
+      font-size: 1.4rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 40px;
+      min-height: 1.4rem;
+    }
+    
+    .preset-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    .preset-buttons button {
+      padding: 15px 25px;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .preset-buttons button:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.4);
+    }
+    
+    .control-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .control-buttons button {
+      padding: 12px 30px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .pause-btn {
+      background: #667eea;
+      color: #fff;
+    }
+    
+    .pause-btn:hover {
+      background: #5a6fd6;
+    }
+    
+    .stop-btn {
+      background: #ff5252;
+      color: #fff;
+    }
+    
+    .stop-btn:hover {
+      background: #ff3333;
+    }
+    
+    .custom-time {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    .custom-time input {
+      padding: 15px;
+      font-size: 1rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      width: 150px;
+      text-align: center;
+    }
+    
+    .custom-time input::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+    
+    .custom-time button {
+      padding: 15px 25px;
+      font-size: 1rem;
+      background: #667eea;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    .custom-time button:hover {
+      background: #5a6fd6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Countdown Timer</h1>
+  
+  <div class="timer-container">
+    <div class="display-time">0:00</div>
+    <div class="display-end-time"></div>
+    
+    <div class="preset-buttons">
+      <button data-time="20">20 Sec</button>
+      <button data-time="300">5 Min</button>
+      <button data-time="900">15 Min</button>
+      <button data-time="1200">20 Min</button>
+      <button data-time="1800">30 Min</button>
+      <button data-time="3600">1 Hour</button>
+    </div>
+    
+    <div class="control-buttons">
+      <button class="pause-btn">Pause</button>
+      <button class="stop-btn">Stop</button>
+    </div>
+    
+    <form class="custom-time">
+      <input type="number" name="minutes" placeholder="Enter minutes" min="0.1" step="0.1">
+      <button type="submit">Start</button>
+    </form>
+  </div>
+
+  <script src="solution.js"></script>
+</body>
+</html>

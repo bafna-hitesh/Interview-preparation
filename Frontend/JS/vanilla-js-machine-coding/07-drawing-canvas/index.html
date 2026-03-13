@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drawing Canvas - Interview Solution</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    h1 { text-align: center; margin: 0 0 15px; }
+    
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+    
+    .tool-group {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+    }
+    
+    .tool-group label {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    button {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    button:hover {
+      background: #f0f0f0;
+    }
+    
+    button.active {
+      background: #667eea;
+      color: #fff;
+      border-color: #667eea;
+    }
+    
+    #color {
+      width: 40px;
+      height: 40px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    
+    #lineWidth {
+      width: 100px;
+    }
+    
+    .canvas-container {
+      flex: 1;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    #canvas {
+      display: block;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    
+    .instructions {
+      text-align: center;
+      font-size: 13px;
+      color: #888;
+      margin-top: 10px;
+    }
+    
+    kbd {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Drawing Canvas</h1>
+  
+  <div class="toolbar">
+    <div class="tool-group">
+      <label>Color:</label>
+      <input type="color" id="color" value="#000000">
+    </div>
+    
+    <div class="tool-group">
+      <label>Size: <span id="lineWidthValue">5</span></label>
+      <input type="range" id="lineWidth" min="1" max="50" value="5">
+    </div>
+    
+    <div class="tool-group">
+      <button data-tool="brush" class="active">Brush</button>
+      <button data-tool="eraser">Eraser</button>
+    </div>
+    
+    <div class="tool-group">
+      <button id="undo">Undo</button>
+      <button id="redo">Redo</button>
+      <button id="clear">Clear</button>
+      <button id="download">Download</button>
+    </div>
+  </div>
+  
+  <div class="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+  
+  <div class="instructions">
+    Draw with mouse or touch • <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo • <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redo
+  </div>
+
+  <script src="solution.js"></script>
+</body>
+</html>

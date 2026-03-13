@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Select - Interview Solution</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .toolbar button {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .toolbar button:hover {
+      background: #f0f0f0;
+    }
+    
+    .selection-count {
+      margin-left: auto;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .email-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .email-item {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+    }
+    
+    .email-item:hover {
+      background: #f8f9fa;
+    }
+    
+    .email-item.selected {
+      background: #e3f2fd;
+    }
+    
+    .email-item.selected:hover {
+      background: #bbdefb;
+    }
+    
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #ccc;
+      border-radius: 3px;
+      margin-right: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .email-item.selected .checkbox {
+      background: #1976d2;
+      border-color: #1976d2;
+    }
+    
+    .email-item.selected .checkbox::after {
+      content: '✓';
+      color: #fff;
+      font-size: 12px;
+    }
+    
+    .email-content {
+      flex: 1;
+    }
+    
+    .email-sender {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .email-subject {
+      color: #333;
+    }
+    
+    .email-preview {
+      color: #888;
+      font-size: 13px;
+    }
+    
+    .email-date {
+      color: #888;
+      font-size: 13px;
+    }
+    
+    .instructions {
+      padding: 15px;
+      background: #fff3cd;
+      font-size: 13px;
+      color: #856404;
+    }
+    
+    kbd {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="instructions">
+      <strong>Try:</strong> 
+      Click to select • 
+      <kbd>Shift</kbd>+Click for range • 
+      <kbd>Ctrl/Cmd</kbd>+Click to toggle • 
+      <kbd>Ctrl/Cmd</kbd>+<kbd>A</kbd> select all • 
+      <kbd>Esc</kbd> to clear
+    </div>
+    
+    <div class="toolbar">
+      <button class="select-all">Select All</button>
+      <button class="clear-selection">Clear</button>
+      <span class="selection-count">No items selected</span>
+    </div>
+    
+    <ul class="email-list" role="listbox" aria-multiselectable="true">
+      <li class="email-item" role="option">
+        <div class="checkbox"></div>
+        <div class="email-content">
+          <div class="email-sender">John Smith</div>
+          <div class="email-subject">Project Update - Q4 Review</div>
+          <div class="email-preview">Hi team, I wanted to share the latest...</div>
+        </div>
+        <div class="email-date">Mar 13</div>
+      </li>
+      <li class="email-item" role="option">
+        <div class="checkbox"></div>
+        <div class="email-content">
+          <div class="email-sender">Sarah Johnson</div>
+          <div class="email-subject">Meeting Tomorrow</div>
+          <div class="email-preview">Can we reschedule to 3pm?</div>
+        </div>
+        <div class="email-date">Mar 12</div>
+      </li>
+      <li class="email-item" role="option">
+        <div class="checkbox"></div>
+        <div class="email-content">
+          <div class="email-sender">GitHub</div>
+          <div class="email-subject">[PR] Fix memory leak in event handler</div>
+          <div class="email-preview">@developer mentioned you in a pull request</div>
+        </div>
+        <div class="email-date">Mar 12</div>
+      </li>
+      <li class="email-item" role="option">
+        <div class="checkbox"></div>
+        <div class="email-content">
+          <div class="email-sender">Tech Newsletter</div>
+          <div class="email-subject">This Week in JavaScript</div>
+          <div class="email-preview">New features in ES2024, TypeScript 5.4...</div>
+        </div>
+        <div class="email-date">Mar 11</div>
+      </li>
+      <li class="email-item" role="option">
+        <div class="checkbox"></div>
+        <div class="email-content">
+          <div class="email-sender">HR Team</div>
+          <div class="email-subject">Benefits Enrollment Reminder</div>
+          <div class="email-preview">Open enrollment ends this Friday...</div>
+        </div>
+        <div class="email-date">Mar 10</div>
+      </li>
+      <li class="email-item" role="option">
+        <div class="checkbox"></div>
+        <div class="email-content">
+          <div class="email-sender">AWS</div>
+          <div class="email-subject">Your monthly bill is ready</div>
+          <div class="email-preview">Your AWS charges for February 2024...</div>
+        </div>
+        <div class="email-date">Mar 9</div>
+      </li>
+    </ul>
+  </div>
+
+  <script src="solution.js"></script>
+</body>
+</html>

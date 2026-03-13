@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drum Kit - Interview Solution</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    html {
+      font-size: 10px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    h1 {
+      color: #fff;
+      font-size: 2.4rem;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+    
+    .keys {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      max-width: 900px;
+      padding: 1rem;
+    }
+    
+    .key {
+      border: 0.4rem solid #333;
+      border-radius: 0.5rem;
+      padding: 1rem 1.5rem;
+      width: 10rem;
+      text-align: center;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.4);
+      transition: all 0.07s ease;
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .key:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .key:focus {
+      outline: 2px solid #ffc600;
+      outline-offset: 2px;
+    }
+    
+    .key.playing {
+      transform: scale(1.1);
+      border-color: #ffc600;
+      box-shadow: 0 0 1rem #ffc600;
+    }
+    
+    kbd {
+      display: block;
+      font-size: 4rem;
+      font-family: inherit;
+    }
+    
+    .sound {
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1rem;
+      color: #ffc600;
+      margin-top: 0.5rem;
+    }
+    
+    .instructions {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 1.4rem;
+      margin-top: 2rem;
+    }
+    
+    @media (max-width: 600px) {
+      .key { width: 8rem; padding: 0.8rem 1rem; }
+      kbd { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>JavaScript Drum Kit</h1>
+  
+  <div class="keys" role="group" aria-label="Drum pad keys">
+    <button class="key" data-key="KeyA" tabindex="0" aria-label="Play clap sound">
+      <kbd>A</kbd>
+      <span class="sound">clap</span>
+    </button>
+    <button class="key" data-key="KeyS" tabindex="0" aria-label="Play hihat sound">
+      <kbd>S</kbd>
+      <span class="sound">hihat</span>
+    </button>
+    <button class="key" data-key="KeyD" tabindex="0" aria-label="Play kick sound">
+      <kbd>D</kbd>
+      <span class="sound">kick</span>
+    </button>
+    <button class="key" data-key="KeyF" tabindex="0" aria-label="Play openhat sound">
+      <kbd>F</kbd>
+      <span class="sound">openhat</span>
+    </button>
+    <button class="key" data-key="KeyG" tabindex="0" aria-label="Play boom sound">
+      <kbd>G</kbd>
+      <span class="sound">boom</span>
+    </button>
+    <button class="key" data-key="KeyH" tabindex="0" aria-label="Play ride sound">
+      <kbd>H</kbd>
+      <span class="sound">ride</span>
+    </button>
+    <button class="key" data-key="KeyJ" tabindex="0" aria-label="Play snare sound">
+      <kbd>J</kbd>
+      <span class="sound">snare</span>
+    </button>
+    <button class="key" data-key="KeyK" tabindex="0" aria-label="Play tom sound">
+      <kbd>K</kbd>
+      <span class="sound">tom</span>
+    </button>
+    <button class="key" data-key="KeyL" tabindex="0" aria-label="Play tink sound">
+      <kbd>L</kbd>
+      <span class="sound">tink</span>
+    </button>
+  </div>
+  
+  <p class="instructions">Press keys A-L or click/tap the pads</p>
+
+  <audio data-key="KeyA" src="sounds/clap.wav"></audio>
+  <audio data-key="KeyS" src="sounds/hihat.wav"></audio>
+  <audio data-key="KeyD" src="sounds/kick.wav"></audio>
+  <audio data-key="KeyF" src="sounds/openhat.wav"></audio>
+  <audio data-key="KeyG" src="sounds/boom.wav"></audio>
+  <audio data-key="KeyH" src="sounds/ride.wav"></audio>
+  <audio data-key="KeyJ" src="sounds/snare.wav"></audio>
+  <audio data-key="KeyK" src="sounds/tom.wav"></audio>
+  <audio data-key="KeyL" src="sounds/tink.wav"></audio>
+
+  <script src="solution.js"></script>
+</body>
+</html>

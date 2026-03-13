@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carousel - Interview Solution</title>
+  <style>
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: #f5f5f5;
+      min-height: 100vh;
+    }
+    
+    h1 { text-align: center; }
+    
+    .carousel {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    .carousel:focus {
+      outline: 3px solid #667eea;
+      outline-offset: 3px;
+    }
+    
+    .carousel-track {
+      display: flex;
+      cursor: grab;
+      user-select: none;
+    }
+    
+    .carousel-slide {
+      flex: 0 0 100%;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      color: #fff;
+      font-weight: bold;
+    }
+    
+    .carousel-slide:nth-child(1) { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .carousel-slide:nth-child(2) { background: linear-gradient(135deg, #f093fb, #f5576c); }
+    .carousel-slide:nth-child(3) { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+    .carousel-slide:nth-child(4) { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+    .carousel-slide:nth-child(5) { background: linear-gradient(135deg, #fa709a, #fee140); }
+    
+    .carousel-prev,
+    .carousel-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.9);
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .carousel-prev:hover,
+    .carousel-next:hover {
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    
+    .carousel-prev.disabled,
+    .carousel-next.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    .carousel-prev { left: 15px; }
+    .carousel-next { right: 15px; }
+    
+    .carousel-dots {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+    
+    .carousel-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      padding: 0;
+    }
+    
+    .carousel-dot.active,
+    .carousel-dot:hover {
+      background: #fff;
+    }
+    
+    .instructions {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    kbd {
+      background: #eee;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Carousel / Slider</h1>
+  
+  <div class="carousel" role="region" aria-label="Image carousel">
+    <div class="carousel-track">
+      <div class="carousel-slide">Slide 1</div>
+      <div class="carousel-slide">Slide 2</div>
+      <div class="carousel-slide">Slide 3</div>
+      <div class="carousel-slide">Slide 4</div>
+      <div class="carousel-slide">Slide 5</div>
+    </div>
+    
+    <button class="carousel-prev" aria-label="Previous slide">‹</button>
+    <button class="carousel-next" aria-label="Next slide">›</button>
+    
+    <div class="carousel-dots"></div>
+  </div>
+  
+  <div class="instructions">
+    Drag to slide • <kbd>←</kbd> <kbd>→</kbd> arrow keys • Hover to pause auto-play
+  </div>
+
+  <script src="solution.js"></script>
+</body>
+</html>
